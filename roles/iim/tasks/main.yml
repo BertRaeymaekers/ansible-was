@@ -1,0 +1,60 @@
+---
+- name: Check the version of have IIM we have installed
+  # Look for the file that contains all IBM installed stuff
+  register: installed
+
+- name: Copy IIM installation binary
+  become: true
+  become_user: "{{iim_user}}"
+  copy:
+    src: "{{iim_src}}"
+    dest: "{{iim_tmp}}"
+    mode: 0700
+  when: installed.rc != 0
+
+- name: Remove old repo {{iim_repo}}
+  become: true
+  become_user: "{{iim_user}}"
+  file:
+    path: {{iim_repo}}
+    state: absent
+  when: installed.rc != 0
+
+- name: Create the repo {{iim_repo}}
+  become: true
+  become_user: "{{iim_user}}"
+  file:
+    path: {{iim_repo}}
+    state: directory
+    mode: 0700
+  when: installed.rc != 0
+
+- name: Unzip {{iim_tmp}}/{{iim_src|basename}} in the repo: {{iim_repo}}
+  become: true
+  become_user: "{{iim_user}}"
+  shell:
+    cd "{{iim_repo}}"; gunzip "{{iim_tmp}}/{{iim_src|basename}}"
+  when: installed.rc != 0
+
+- name: Remove temporary installation file {{iim_tmp}}//{{iim_src|basename}}
+  become: true
+  become_user: "{{iim_user}}"
+  file:
+    path: {{iim_tmp}}//{{iim_src|basename}}
+    state: absent
+  ignore_errors: yes
+
+- name: Run the IIM installer from {{iim_repo}}
+  become: true
+  become_user: "{{iim_user}}"
+  shell:
+    todo
+  when: installed.rc != 0
+
+- name: Clean up repo {{iim_repo}}
+  become: true
+  become_user: "{{iim_user}}"
+  file:
+    path: {{iim_repo}}
+    state: absent
+  ignore_errors: yes
