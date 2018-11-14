@@ -1,2 +1,6 @@
 ---
-# defaults file for wsadmin
+{{ibm_root}}: /opt/IBM
+{{was_root}}: {{ibm_root}}/WebSphere/AppServer
+{{was_bin}}: {{was_root}}/bin
+{{wsadmin_cmd}}: {{was_bin}}/wsadmin.sh
+{{was_profile_root}}: {{was_root}}/profiles
