@@ -1,12 +1,12 @@
 # ansible-was
 
-Roles for installing and managing IBM Websphere Application Server (WAS),
-including the IBM Installation Manager (IIM), IBM HTTP Server (IHS)  and
-Plugin (PLG).
+Roles for installing and managing IBM Websphere Application Server (WAS) on
+*nix (tested on Debian Linux), including the IBM Installation Manager (IIM),
+IBM HTTP Server (IHS) and Plugin (PLG).
 
 ## IIM
 
-Installs the IBM Installation Manager
+Installs the IBM Installation Manager.
 
 ### Requirements
 
@@ -20,6 +20,7 @@ Sufficient rights for this user to create the {{iim_repo}}, {{iim_tmp}} and {{ii
 
 - iim_user or ibm_user (iim_user: "{{ibm_user}}"): User as which to install IIM. **required**
 - iim_path or ibm_root (iim_path: "{{ibm_root}}/InstallationManager"): Path where to install IIM. **required**
+
 - ibm_repo: Location of the IBM repositories. **default**: "{{ibm_root}}/repo"
 - ibm_mode: Default directory mode. **default**: "0750"
 - iim_version: Minimal required version of IIM. **default**: "1.8"
