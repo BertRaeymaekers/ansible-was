@@ -18,8 +18,8 @@ Sufficient rights for this user to create the {{iim_repo}}, {{iim_tmp}} and {{ii
 
 ### Variables
 
-- iim_user or ibm_user (iim_user: "{{ibm_user}}"): User as which to install IIM **required**
-- iim_path or ibm_root (iim_path: "{{ibm_root}}/InstallationManager"): Path where to install IIM **required**
+- iim_user or ibm_user (iim_user: "{{ibm_user}}"): User as which to install IIM. **required**
+- iim_path or ibm_root (iim_path: "{{ibm_root}}/InstallationManager"): Path where to install IIM. **required**
 - ibm_repo: Location of the IBM repositories. **default**: "{{ibm_root}}/repo"
 - ibm_mode: Default directory mode. **default**: "0750"
 - iim_version: Minimal required version of IIM. **default**: "1.8"
