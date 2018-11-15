@@ -1,3 +1,9 @@
 ---
-{{iim_repo}}: {{ibm_repo}}/IIM
-{{iim_tmp}}: {{ibm_repo}}/tmp
+ibm_repo: "{{ibm_root}}/repo"
+ibm_mode: "0750"
+iim_version: "1.8"
+iim_path: "{{ibm_root}}/InstallationManager"
+iim_repo: "{{ibm_repo}}/IIM"
+iim_tmp: "{{ibm_root}}/tmp"
+iim_group: "{{iim_user}}"
+iim_mode: "{{ibm_mode}}"

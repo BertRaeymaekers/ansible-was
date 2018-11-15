@@ -4,3 +4,6 @@
 # downloads
 downloads
 downloads/
+
+# Don't wan't .retry files
+*.retry

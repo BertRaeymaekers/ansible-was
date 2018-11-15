@@ -1,7 +1,27 @@
 ---
-- name: Check the version of have IIM we have installed
-  # Look for the file that contains all IBM installed stuff
+- name: Get the version of an IIM already installed
+  become: true
+  become_user: "{{iim_user}}"
+  shell:
+    grep version ~{{iim_user}}/etc/.ibm/registry/InstallationManager.dat | cut -d= -f2
+  ignore_errors: true
+  changed_when: false
   register: installed
+
+- debug:
+    msg: "Already at version {{iim_version}} or higher with version {{installed.stdout}}"
+  when: (installed.stdout) and (installed.stdout is version_compare(iim_version, '>='))
+
+- name: Create the {{iim_tmp}} directory
+  become: true
+  become_user: "{{iim_user}}"
+  file:
+    path: "{{iim_tmp}}"
+    state: directory
+    mode: "{{iim_mode}}"
+    owner: "{{iim_user}}"
+    group: "{{iim_group}}"
+  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
 - name: Copy IIM installation binary
   become: true
@@ -9,52 +29,52 @@
   copy:
     src: "{{iim_src}}"
     dest: "{{iim_tmp}}"
-    mode: 0700
-  when: installed.rc != 0
+    mode: "{{iim_mode}}"
+  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
 - name: Remove old repo {{iim_repo}}
   become: true
   become_user: "{{iim_user}}"
   file:
-    path: {{iim_repo}}
+    path: "{{iim_repo}}"
     state: absent
-  when: installed.rc != 0
+  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
 - name: Create the repo {{iim_repo}}
   become: true
   become_user: "{{iim_user}}"
   file:
-    path: {{iim_repo}}
+    path: "{{iim_repo}}"
     state: directory
-    mode: 0700
-  when: installed.rc != 0
+    mode: "{{iim_mode}}"
+  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
-- name: Unzip {{iim_tmp}}/{{iim_src|basename}} in the repo: {{iim_repo}}
+- name: Unzip {{iim_tmp}}/{{iim_src|basename}} in the repo {{iim_repo}}
   become: true
   become_user: "{{iim_user}}"
   shell:
-    cd "{{iim_repo}}"; gunzip "{{iim_tmp}}/{{iim_src|basename}}"
-  when: installed.rc != 0
+    cd "{{iim_repo}}"; unzip "{{iim_tmp}}/{{iim_src|basename}}"
+  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
 - name: Remove temporary installation file {{iim_tmp}}//{{iim_src|basename}}
   become: true
   become_user: "{{iim_user}}"
   file:
-    path: {{iim_tmp}}//{{iim_src|basename}}
+    path: "{{iim_tmp}}/{{iim_src|basename}}"
     state: absent
   ignore_errors: yes
 
-- name: Run the IIM installer from {{iim_repo}}
+- name: Run the IIM installer from {{iim_repo}} to install IIM at {{iim_path}}
   become: true
   become_user: "{{iim_user}}"
   shell:
-    todo
-  when: installed.rc != 0
+    '{{iim_repo}}/userinstc -acceptLicense -installationDirectory "{{iim_path}}"'
+  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
 - name: Clean up repo {{iim_repo}}
   become: true
   become_user: "{{iim_user}}"
   file:
-    path: {{iim_repo}}
+    path: "{{iim_repo}}"
     state: absent
   ignore_errors: yes
