@@ -21,7 +21,7 @@
     mode: "{{iim_mode}}"
     owner: "{{iim_user}}"
     group: "{{iim_group}}"
-  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
+  when: (iim_local_src is not defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
 - name: Copy IIM installation binary
   become: true
@@ -30,7 +30,7 @@
     src: "{{iim_src}}"
     dest: "{{iim_tmp}}"
     mode: "{{iim_mode}}"
-  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
+  when: (iim_local_src is not defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
 - name: Remove old repo {{iim_repo}}
   become: true
@@ -49,12 +49,19 @@
     mode: "{{iim_mode}}"
   when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
-- name: Unzip {{iim_tmp}}/{{iim_src|basename}} in the repo {{iim_repo}}
+- name: Unzip donwloaded {{iim_tmp}}/{{iim_src|basename}} in the repo {{iim_repo}}
   become: true
   become_user: "{{iim_user}}"
   shell:
     cd "{{iim_repo}}"; unzip "{{iim_tmp}}/{{iim_src|basename}}"
-  when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
+  when: (iim_local_src is not defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
+
+- name: Unzip local {{iim_local_src}} in the repo {{iim_repo}}
+  become: true
+  become_user: "{{iim_user}}"
+  shell:
+    cd "{{iim_repo}}"; unzip "{{iim_local_src}}"
+  when: (iim_local_src is defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
 - name: Remove temporary installation file {{iim_tmp}}//{{iim_src|basename}}
   become: true
@@ -63,6 +70,7 @@
     path: "{{iim_tmp}}/{{iim_src|basename}}"
     state: absent
   ignore_errors: yes
+  when: iim_local_src is not defined
 
 - name: Run the IIM installer from {{iim_repo}} to install IIM at {{iim_path}}
   become: true

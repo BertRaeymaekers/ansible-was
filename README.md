@@ -30,6 +30,11 @@ Sufficient rights for this user to create the {{iim_repo}}, {{iim_tmp}} and {{ii
 - iim_group: Group of the iim_user. **default**: "{{iim_user}}"
 - iim_mode: Mode for the directories that are created. **default**: "{{ibm_mode}}"
 
+- iim_local_src: This will bypass all of the copying of the zip file to the
+  managed node and just use a zip file on the managed node's filesystem. Use
+  this if you copy the zip file yourself or mounted for instance an NFS with
+  the installation zip files before.
+
 ### Example of use
 
 See playbook-iim.yml for Debian stretch.
