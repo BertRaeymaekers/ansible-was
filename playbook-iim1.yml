@@ -1,0 +1,38 @@
+---
+- name: WebSphere Application Server install & configure playbook example
+  hosts: was
+  vars:
+    ibm_user: was
+    ibm_root: /soft/IBM
+  pre_tasks:
+    - name: Install setfacl and (un)zip
+      become: yes
+      apt:
+        name: ['acl', 'zip']
+        state: present
+
+    - name: Create the {{ibm_user}} user
+      become: true
+      become_user: root
+      user:
+        name: "{{ibm_user}}"
+
+    - name: Create the {{ibm_root}} directory
+      become: true
+      become_user: root
+      file:
+        path: "{{ibm_root}}"
+        state: directory
+        owner: "{{ibm_user}}"
+        group: "{{ibm_user}}"
+        mode: 0750
+
+    - name: Copy the installation zip to /tmp
+      become: true
+      become_user: "{{ibm_user}}"
+      copy:
+        src: "downloads/agent.installer.linux.gtk.x86_64_1.8.9002.20181015_1517.zip"
+        dest: /tmp
+
+  roles:
+    - { role: iim, iim_local_src: "/tmp/agent.installer.linux.gtk.x86_64_1.8.9002.20181015_1517.zip", iim_user: "{{ibm_user}}" }
