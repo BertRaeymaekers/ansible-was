@@ -1,5 +1,5 @@
 ---
-- name: WebSphere Application Server install & configure playbook example
+- name: IBM Installation Manager installation example playbook
   hosts: was
   vars:
     ibm_user: was
