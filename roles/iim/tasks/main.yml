@@ -63,7 +63,7 @@
     cd "{{iim_repo}}"; unzip "{{iim_local_src}}"
   when: (iim_local_src is defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
-- name: Remove temporary installation file {{iim_tmp}}//{{iim_src|basename}}
+- name: Remove temporary installation file {{iim_tmp}}/{{iim_src|basename}}
   become: true
   become_user: "{{iim_user}}"
   file:
