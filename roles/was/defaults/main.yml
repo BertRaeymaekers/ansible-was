@@ -4,6 +4,7 @@ ibm_shared_path: "{{ibm_root}}/Shared"
 was_repo: "{{ibm_repo}}/WAS"
 jdk_repo: "{{ibm_repo}}/JDK"
 iim_tmp: "{{ibm_root}}/tmp"
+was_user: "{{ibm_user}}"
 was_group: "{{was_user}}"
 state: installed
 was_nd: false
