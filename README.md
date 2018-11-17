@@ -38,3 +38,52 @@ Sufficient rights for this user to create the {{iim_repo}}, {{iim_tmp}} and {{ii
 ### Example of use
 
 See playbook-iim.yml for Debian stretch.
+
+## WAS
+
+Installs or uninstalls the IBM WebSphere Application Server.
+
+### Requirements
+
+On the OS setfacl and unzip (Debian packages acl & zip) must be installed.
+
+The user with group {{was_user}}:{was_group}} must exist.
+
+Sufficient rights for this user to create the {{was_repo}}, {{iim_tmp}}
+and {{was_path}} directories.
+
+### Variables
+
+- was_user or ibm_user (was_user: "{{ibm_user}}"): User as which to install WAS
+  (must also be the user IIM is installed with). **required**
+- was_path  or ibm_root (was_path: "{{ibm_root}}/WebSphere". **required**
+- was_repo or ibm_repo (was_repo: "{{ibm_repo}}"). **required**
+
+- state: *installed* or *absent". **default**: installed
+- was_nd: *false* or *true*. **default**: false
+- ibm_repo: Location of the IBM repositories. **default**: "{{ibm_root}}/repo"
+- ibm_mode: Default directory mode. **default**: "0750"
+- was_version: Miniamal version required. **default**: "9.0"
+- was_imcl_package_name: Name of the WAS package as required by imcl of IIM
+- jdk_imcl_package_name: Name of the JDK package as required by imcl of IIM
+- was_imcl_package_regex: Regex that matches the WAS package name inlcuding
+  version. **default**:
+  "com.ibm.websphere.BASE.v[0-9]+_([0-9]+.[0-9]+.[0-9]+.[0-9]+)"
+- was_group: Group of the was_user. **default**: "{{was_user}}"
+- was_mode: Mode for the directories that are created. **default**:
+  "{{ibm_mode}}"
+
+- was_local_src: This will bypass all of the copying of the WAS zip file to the
+  managed node and just use a zip file on the manged node's filesystem. Use
+  this if you copy the zip file yourself or mounted for instance an NFS with
+  the installation zip files before.
+- jdk_local_src: This will bypass all of the copying of the SDK zip file to the
+  managed node and just use a zip file on the manged node's filesystem. Use
+  this if you copy the zip file yourself or mounted for instance an NFS with
+  the installation zip files before.
+
+### Examples of use
+
+See playbook-was.yml for Debian stretch.
+
+See playbook-uninstall-was.yml for the uninstall on Debian stretch.
