@@ -1,2 +1,162 @@
 ---
-# tasks file for was
+- name: Get the installed packages
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    '"{{iim_path}}/eclipse/tools/imcl" listInstalledPackages'
+  ignore_errors: true
+  changed_when: false
+  register: installed
+
+- name: Set the version to 0
+  set_fact:
+    installed_version: "0"
+
+- name: Get the version of the installed WAS
+  set_fact:
+    installed_version: '{{installed.stdout|regex_search(was_imcl_package_regex, multiline=True)|regex_search("[0-9]+.[0-9]+.[0-9]+.[0-9]+$")}}'
+  ignore_errors: true
+  when: installed is defined
+
+- debug:
+    msg: Already at version {{was_version}} or higher with version {{installed_version}}.
+  when: installed_version is version_compare(was_version, '>=')
+
+- name: Uninstalling WAS {{installed_version}}
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    '"{{iim_path}}/eclipse/tools/imcl" "uninstall" "{{was_imcl_package_name}}" "{{jdk_imcl_package_name}}"'
+  when: (state == "absent") or (installed_version != "0" and (installed_version is version_compare(was_version, '<')))
+
+- name: Create the {{iim_tmp}} directory
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{iim_tmp}}"
+    state: directory
+    mode: "{{was_mode}}"
+    owner: "{{was_user}}"
+    group: "{{was_group}}"
+  when: (was_local_src is not defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Copy WAS installation binary
+  become: true
+  become_user: "{{was_user}}"
+  copy:
+    src: "{{was_src}}"
+    dest: "{{iim_tmp}}"
+    mode: "{{was_mode}}"
+  when: (was_local_src is not defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Remove old repo {{was_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{was_repo}}"
+    state: absent
+  when: (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Create the repo {{was_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{was_repo}}"
+    state: directory
+    mode: "{{was_mode}}"
+  when: (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Unzip donwloaded {{iim_tmp}}/{{was_src|basename}} in the repo {{was_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    cd "{{was_repo}}"; unzip "{{iim_tmp}}/{{was_src|basename}}"
+  when: (was_local_src is not defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Unzip local {{was_local_src}} in the repo {{was_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    cd "{{was_repo}}"; unzip "{{was_local_src}}"
+  when: (was_local_src is defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Remove temporary installation file {{iim_tmp}}/{{was_src|basename}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{iim_tmp}}/{{was_src|basename}}"
+    state: absent
+  ignore_errors: yes
+  when: was_local_src is not defined
+
+- name: Remove old repo {{jdk_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{jdk_repo}}"
+    state: absent
+  when: (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Create the repo {{jdk_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{jdk_repo}}"
+    state: directory
+    mode: "{{was_mode}}"
+  when: (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Copy JDK installation binary
+  become: true
+  become_user: "{{was_user}}"
+  copy:
+    src: "{{jdk_src}}"
+    dest: "{{iim_tmp}}"
+    mode: "{{was_mode}}"
+  when: (jdk_local_src is not defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Unzip donwloaded {{iim_tmp}}/{{jdk_src|basename}} in the repo {{jdk_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    cd "{{jdk_repo}}"; unzip "{{iim_tmp}}/{{jdk_src|basename}}"
+  when: (jdk_local_src is not defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Unzip local {{jdk_local_src}} in the repo {{jdk_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    cd "{{jdk_repo}}"; unzip "{{jdk_local_src}}"
+  when: (jdk_local_src is defined) and (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Remove temporary installation file {{iim_tmp}}/{{jdk_src|basename}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{iim_tmp}}/{{jdk_src|basename}}"
+    state: absent
+  ignore_errors: yes
+  when: jdk_local_src is not defined
+
+- name: Run IIM at {{iim_path}} to install WAS with JDK at {{was_path}}
+  become: true
+  become_user: "{{was_user}}"
+  shell:
+    '"{{iim_path}}/eclipse/tools/imcl" "install" "{{was_imcl_package_name}}" "{{jdk_imcl_package_name}}" "-repositories" "{{was_repo}},{{jdk_repo}}" "-installationDirectory" "{{was_path}}" "-sharedResourcesDirectory" "{{ibm_shared_path}}" "-accessRights" "nonAdmin" "-acceptLicense"'
+  when: (state == "installed") and (installed_version is version_compare(was_version, '<'))
+
+- name: Clean up repo {{was_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{was_repo}}"
+    state: absent
+  ignore_errors: yes
+
+- name: Clean up repo {{jdk_repo}}
+  become: true
+  become_user: "{{was_user}}"
+  file:
+    path: "{{jdk_repo}}"
+    state: absent
+  ignore_errors: yes

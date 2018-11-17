@@ -1,0 +1,9 @@
+---
+- name: WebSphere Application Server install & configure playbook example
+  hosts: was
+  vars:
+    ibm_user: was
+    ibm_root: /soft/IBM
+
+  roles:
+    - { role: was, state: "absent", iim_path: "{{ibm_root}}/InstallationManager", was_user: "{{ibm_user}}" }
