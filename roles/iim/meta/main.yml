@@ -1,6 +1,7 @@
 galaxy_info:
   author: Bert Raeymaekers
   description: https://github.com/BertRaeymaekers
+  company: None
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
@@ -37,7 +38,7 @@ galaxy_info:
   platforms:
   - name: Debian
     versions:
-    - 4.9
+    - stretch
 
   galaxy_tags:
   - IIM
