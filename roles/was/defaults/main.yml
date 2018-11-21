@@ -1,15 +1,15 @@
 ---
-ibm_repo: "{{ibm_root}}/repo"
-ibm_shared_path: "{{ibm_root}}/Shared"
-was_repo: "{{ibm_repo}}/WAS"
-jdk_repo: "{{ibm_repo}}/JDK"
-iim_tmp: "{{ibm_root}}/tmp"
-was_user: "{{ibm_user}}"
-was_group: "{{was_user}}"
+ibm_repo: "{{ ibm_root }}/repo"
+ibm_shared_path: "{{ ibm_root }}/Shared"
+was_repo: "{{ ibm_repo }}/WAS"
+jdk_repo: "{{ ibm_repo }}/JDK"
+iim_tmp: "{{ ibm_root }}/tmp"
+was_user: "{{ ibm_user }}"
+was_group: "{{ was_user }}"
 state: installed
 was_nd: false
 was_version: '9.0'
-was_mode: "{{ibm_mode}}"
+was_mode: "{{ ibm_mode }}"
 was_path: "{{ibm_root}}/WebSphere"
 
 was_imcl_package_regex: "com.ibm.websphere.BASE.v[0-9]+_([0-9]+.[0-9]+.[0-9]+.[0-9]+)"

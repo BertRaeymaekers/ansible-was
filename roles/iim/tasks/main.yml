@@ -1,88 +1,88 @@
 ---
 - name: Get the version of an IIM already installed
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   shell:
-    grep version ~{{iim_user}}/etc/.ibm/registry/InstallationManager.dat | cut -d= -f2
+    grep version ~{{ iim_user }}/etc/.ibm/registry/InstallationManager.dat | cut -d= -f2
   ignore_errors: true
   changed_when: false
   register: installed
 
 - debug:
-    msg: "Already at version {{iim_version}} or higher with version {{installed.stdout}}"
+    msg: "Already at version {{ iim_version }} or higher with version {{ installed.stdout }}"
   when: (installed.stdout) and (installed.stdout is version_compare(iim_version, '>='))
 
-- name: Create the {{iim_tmp}} directory
+- name: Create the {{ iim_tmp }} directory
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   file:
-    path: "{{iim_tmp}}"
+    path: "{{ iim_tmp }}"
     state: directory
-    mode: "{{iim_mode}}"
-    owner: "{{iim_user}}"
-    group: "{{iim_group}}"
+    mode: "{{ iim_mode }}"
+    owner: "{{ iim_user }}"
+    group: "{{ iim_group }}"
   when: (iim_local_src is not defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
 - name: Copy IIM installation binary
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   copy:
-    src: "{{iim_src}}"
-    dest: "{{iim_tmp}}"
-    mode: "{{iim_mode}}"
+    src: "{{ iim_src }}"
+    dest: "{{ iim_tmp }}"
+    mode: "{{ iim_mode }}"
   when: (iim_local_src is not defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
-- name: Remove old repo {{iim_repo}}
+- name: Remove old repo {{ iim_repo }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   file:
-    path: "{{iim_repo}}"
+    path: "{{ iim_repo }}"
     state: absent
   when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
-- name: Create the repo {{iim_repo}}
+- name: Create the repo {{ iim_repo }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   file:
-    path: "{{iim_repo}}"
+    path: "{{ iim_repo }}"
     state: directory
-    mode: "{{iim_mode}}"
+    mode: "{{ iim_mode }}"
   when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
-- name: Unzip donwloaded {{iim_tmp}}/{{iim_src|basename}} in the repo {{iim_repo}}
+- name: Unzip donwloaded {{ iim_tmp }}/{{ iim_src|basename }} in the repo {{ iim_repo }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   shell:
-    cd "{{iim_repo}}"; unzip "{{iim_tmp}}/{{iim_src|basename}}"
+    cd "{{ iim_repo }}"; unzip "{{ iim_tmp }}/{{ iim_src|basename }}"
   when: (iim_local_src is not defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
-- name: Unzip local {{iim_local_src}} in the repo {{iim_repo}}
+- name: Unzip local {{ iim_local_src }} in the repo {{ iim_repo }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   shell:
-    cd "{{iim_repo}}"; unzip "{{iim_local_src}}"
+    cd "{{ iim_repo }}"; unzip "{{ iim_local_src }}"
   when: (iim_local_src is defined) and ((not installed.stdout) or (installed.stdout is version_compare(iim_version, '<')))
 
-- name: Remove temporary installation file {{iim_tmp}}/{{iim_src|basename}}
+- name: Remove temporary installation file {{ iim_tmp }}/{{ iim_src|basename }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   file:
-    path: "{{iim_tmp}}/{{iim_src|basename}}"
+    path: "{{ iim_tmp }}/{{ iim_src|basename }}"
     state: absent
   ignore_errors: yes
   when: iim_local_src is not defined
 
-- name: Run the IIM installer from {{iim_repo}} to install IIM at {{iim_path}}
+- name: Run the IIM installer from {{ iim_repo }} to install IIM at {{ iim_path }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   shell:
-    '{{iim_repo}}/userinstc -acceptLicense -installationDirectory "{{iim_path}}"'
+    '{{ iim_repo }}/userinstc -acceptLicense -installationDirectory "{{ iim_path }}"'
   when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
-- name: Clean up repo {{iim_repo}}
+- name: Clean up repo {{ iim_repo }}
   become: true
-  become_user: "{{iim_user}}"
+  become_user: "{{ iim_user }}"
   file:
-    path: "{{iim_repo}}"
+    path: "{{ iim_repo }}"
     state: absent
   ignore_errors: yes
