@@ -38,7 +38,7 @@ galaxy_info:
   platforms:
   - name: Debian
     versions:
-    - strech
+    - stretch
 
   galaxy_tags:
     - ihs
