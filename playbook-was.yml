@@ -10,6 +10,14 @@
       apt:
         name: ['acl', 'zip']
         state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install setfacl and unzip on RedHat
+      become: yes
+      yum:
+        name: ['acl', 'unzip']
+        state: present
+      when: ansible_os_family == "RedHat"
 
     - name: Create the {{ibm_user}} user
       become: true

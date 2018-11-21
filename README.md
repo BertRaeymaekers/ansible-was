@@ -10,7 +10,9 @@ Installs the IBM Installation Manager.
 
 ### Requirements
 
-On the OS setfacl and unzip (Debian packages acl & zip) must be installed.
+On the OS setfacl and unzip must be installed.
+- Debian: setfacl & zip
+- CentOS: setfacl & unzip
 
 The user with group {{iim_user}}:{iim_group}} must exist.
 
