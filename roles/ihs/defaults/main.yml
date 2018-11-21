@@ -1,2 +1,19 @@
 ---
-# defaults file for ihs
+ibm_repo: "{{ ibm_root }}/repo"
+ibm_shared_path: "{{ ibm_root }}/Shared"
+ihs_repo: "{{ ibm_repo }}/IHS"
+plg_repo: "{{ ibm_repo }}/PLG"
+jdk_repo: "{{ ibm_repo }}/JDK"
+iim_tmp: "{{ ibm_root }}/tmp"
+ihs_user: "{{ ibm_user }}"
+ihs_group: "{{ ihs_user }}"
+state: installed
+ihs_version: '9.0'
+ihs_mode: "{{ ibm_mode }}"
+ihs_path: "{{ibm_root}}/HTTPServer"
+plg_path: "{{ibm_root}}/Plugins"
+
+ihs_imcl_package_regex: "com.ibm.ihs.v[0-9]+_([0-9]+.[0-9]+.[0-9]+.[0-9]+)"
+ihs_imcl_package_name: "com.ibm.websphere.IHS.v90"
+plg_imcl_package_name: "com.ibm.websphere.PLG.v90"
+jdk_imcl_package_name: "com.ibm.java.jdk.v8"

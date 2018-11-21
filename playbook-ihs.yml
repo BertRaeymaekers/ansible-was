@@ -1,0 +1,32 @@
+---
+- name: IBM HTTP Server installation playbook example
+  hosts: was
+  vars:
+    ibm_user: was
+    ibm_root: /soft/IBM
+  pre_tasks:
+    - name: Install setfacl and (un)zip
+      become: yes
+      apt:
+        name: ['acl', 'zip']
+        state: present
+
+    - name: Create the {{ibm_user}} user
+      become: true
+      become_user: root
+      user:
+        name: "{{ibm_user}}"
+
+    - name: Create the {{ibm_root}} directory
+      become: true
+      become_user: root
+      file:
+        path: "{{ibm_root}}"
+        state: directory
+        owner: "{{ibm_user}}"
+        group: "{{ibm_user}}"
+        mode: 0750
+
+  roles:
+    - { role: iim, iim_src: "downloads/agent.installer.linux.gtk.x86_64_1.8.9002.20181015_1517.zip", iim_user: "{{ibm_user}}" }
+    - { role: ihs, ihs_src: "downloads/was.repo.9000.ihs.zip", plg_src: "downloads/was.repo.9000.plugins.zip", jdk_src: "downloads/sdk.repo.8030.java8.linux.zip", ihs_user: "{{ibm_user}}" }
