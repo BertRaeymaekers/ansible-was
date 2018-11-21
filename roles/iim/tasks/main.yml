@@ -75,7 +75,7 @@
 - name: Run the IIM installer from {{ iim_repo }} to install IIM at {{ iim_path }}
   become: true
   become_user: "{{ iim_user }}"
-  shell:
+  command:
     '{{ iim_repo }}/userinstc -acceptLicense -installationDirectory "{{ iim_path }}"'
   when: (not installed.stdout) or (installed.stdout is version_compare(iim_version, '<'))
 
