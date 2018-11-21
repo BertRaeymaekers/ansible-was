@@ -26,7 +26,7 @@
   become: true
   become_user: "{{ was_user }}"
   command:
-    '"{{ iim_path }}/eclipse/tools/imcl" "uninstall" "{{ was_imcl_package_name }}" "{{ jdk_imcl_package_name }}"'
+    '"{{ iim_path }}/eclipse/tools/imcl" "uninstall" "{{ was_imcl_package_name }}" "{{ jdk_imcl_package_name }}" "-installationDirectory" "{{ was_path }}"'
   when: (state == "absent") or (installed_version != "0" and (installed_version is version_compare(was_version, '<')))
 
 - name: Clear directory "{{ was_path }}"
