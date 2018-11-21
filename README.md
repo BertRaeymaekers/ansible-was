@@ -37,7 +37,7 @@ Sufficient rights for this user to create the {{iim_repo}}, {{iim_tmp}} and {{ii
 
 ### Example of use
 
-See playbook-iim.yml for Debian stretch.
+See playbook-iim.yml for installing.
 
 ## WAS
 
@@ -84,6 +84,29 @@ and {{was_path}} directories.
 
 ### Examples of use
 
-See playbook-was.yml for Debian stretch.
+See playbook-was.yml for installing.
 
-See playbook-uninstall-was.yml for the uninstall on Debian stretch.
+See playbook-uninstall-was.yml for the uninstall.
+
+## IHS (+ PLG)
+
+Installs or uninstalls the IBM HTTP Server and Plugin.
+
+### Requirements
+
+On the OS setfacl and unzip (Debian packages acl & zip) must be installed.
+
+The user with group {{ihs_user}}:{{ihs_group}} must exist.
+
+Sufficient rights for this user to create the {{ihs_repo}}, {{plg_repo}},
+{{iim_tmp}}, {{ihs_path}} and {{plg_path}} directories.
+
+### Variables
+
+TODO: similar to WAS but with ihs_ and plg_
+
+### Examples of use
+
+See playbook-ihs.yml for installing.
+
+See playbook-uninstall-ihs.yml for the uninstall.
