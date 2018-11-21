@@ -1,6 +1,6 @@
 galaxy_info:
   author: Bert Raeymaekers
-  description: https://github.com/BertRaeymaekers
+  description: Install/uninstall IBM HTTP Server (IHS) with Plugin (PLG).
   company: private
 
   # If the issue tracker for your role is not on github, uncomment the
