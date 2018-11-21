@@ -8,7 +8,7 @@
   changed_when: false
   register: installed
 
-- name: Set the version to 0
+- name: Set the installed IHS version to 0
   set_fact:
     installed_version: "0"
 
@@ -18,16 +18,37 @@
   ignore_errors: true
   when: installed is defined
 
+- name: Set the installed PLG version to 0
+  set_fact:
+    installed_plg_version: "0"
+
+- name: Get the version of the installed PLG
+  set_fact:
+    installed_plg_version: '{{ installed.stdout|regex_search(plg_imcl_package_regex, multiline=True)|regex_search("[0-9]+.[0-9]+.[0-9]+.[0-9]+$") }}'
+  ignore_errors: true
+  when: installed is defined
+
 - debug:
     msg: Already at version {{ ihs_version }} or higher with version {{ installed_version }}.
   when: installed_version is version_compare(ihs_version, '>=')
+
+- debug:
+    msg: Already at version {{ plg_version }} or higher with version {{ installed_plg_version }}.
+  when: installed_plg_version is version_compare(plg_version, '>=')
 
 - name: Uninstalling IHS {{ installed_version }}
   become: true
   become_user: "{{ ihs_user }}"
   command:
-    '"{{ iim_path }}/eclipse/tools/imcl" "uninstall" "{{ ihs_imcl_package_name }}" "{{ plg_imcl_package_name }}" "{{ jdk_imcl_package_name }}"'
+    '"{{ iim_path }}/eclipse/tools/imcl" "uninstall" "{{ ihs_imcl_package_name }}" "{{ jdk_imcl_package_name }}" "-installationDirectory" "{{ ihs_path }}"'
   when: (state == "absent") or (installed_version != "0" and (installed_version is version_compare(ihs_version, '<')))
+
+- name: Uninstalling PLG {{ installed_plg_version }}
+  become: true
+  become_user: "{{ ihs_user }}"
+  command:
+    '"{{ iim_path }}/eclipse/tools/imcl" "uninstall" "{{ plg_imcl_package_name }}" "{{ jdk_imcl_package_name }}" "-installationDirectory" "{{ plg_path }}"'
+  when: (state == "absent") or (installed_plg_version != "0" and (installed_plg_version is version_compare(plg_version, '<')))
 
 - name: Clear directory "{{ ihs_path }}"
   become: true
@@ -111,7 +132,7 @@
   file:
     path: "{{ plg_repo }}"
     state: absent
-  when: (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (state == "installed") and (installed_plg_version is version_compare(plg_version, '<'))
 
 - name: Create the repo {{ plg_repo }}
   become: true
@@ -120,7 +141,7 @@
     path: "{{ plg_repo }}"
     state: directory
     mode: "{{ ihs_mode }}"
-  when: (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (state == "installed") and (installed_plg_version is version_compare(plg_version, '<'))
 
 - name: Copy PLG installation binary
   become: true
@@ -129,21 +150,21 @@
     src: "{{ plg_src }}"
     dest: "{{ iim_tmp }}"
     mode: "{{ ihs_mode }}"
-  when: (plg_local_src is not defined) and (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (plg_local_src is not defined) and (state == "installed") and (installed_plg_version is version_compare(plg_version, '<'))
 
 - name: Unzip donwloaded {{ iim_tmp }}/{{ plg_src|basename }} in the repo {{ plg_repo }}
   become: true
   become_user: "{{ ihs_user }}"
   shell:
     cd "{{ plg_repo }}"; unzip "{{ iim_tmp }}/{{ plg_src|basename }}"
-  when: (plg_local_src is not defined) and (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (plg_local_src is not defined) and (state == "installed") and (installed_plg_version is version_compare(plg_version, '<'))
 
 - name: Unzip local {{ plg_local_src }} in the repo {{ plg_repo }}
   become: true
   become_user: "{{ ihs_user }}"
   shell:
     cd "{{ plg_repo }}"; unzip "{{ plg_local_src }}"
-  when: (plg_local_src is defined) and (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (plg_local_src is defined) and (state == "installed") and (installed_plg_version is version_compare(plg_version, '<'))
 
 - name: Remove temporary installation file {{ iim_tmp }}/{{ plg_src|basename }}
   become: true
@@ -160,7 +181,7 @@
   file:
     path: "{{ jdk_repo }}"
     state: absent
-  when: (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (state == "installed") and ((installed_version is version_compare(ihs_version, '<')) or (installed_plg_version is version_compare(plg_version, '<')))
 
 - name: Create the repo {{ jdk_repo }}
   become: true
@@ -169,7 +190,7 @@
     path: "{{ jdk_repo }}"
     state: directory
     mode: "{{ ihs_mode }}"
-  when: (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (state == "installed") and ((installed_version is version_compare(ihs_version, '<')) or (installed_plg_version is version_compare(plg_version, '<')))
 
 - name: Copy JDK installation binary
   become: true
@@ -178,21 +199,21 @@
     src: "{{ jdk_src }}"
     dest: "{{ iim_tmp }}"
     mode: "{{ ihs_mode }}"
-  when: (jdk_local_src is not defined) and (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (jdk_local_src is not defined) and (state == "installed") and ((installed_version is version_compare(ihs_version, '<')) or (installed_plg_version is version_compare(plg_version, '<')))
 
 - name: Unzip donwloaded {{ iim_tmp }}/{{ jdk_src|basename }} in the repo {{ jdk_repo }}
   become: true
   become_user: "{{ ihs_user }}"
   shell:
     cd "{{ jdk_repo }}"; unzip "{{ iim_tmp }}/{{ jdk_src|basename }}"
-  when: (jdk_local_src is not defined) and (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (jdk_local_src is not defined) and (state == "installed") and ((installed_version is version_compare(ihs_version, '<')) or (installed_plg_version is version_compare(plg_version, '<')))
 
 - name: Unzip local {{ jdk_local_src }} in the repo {{ jdk_repo }}
   become: true
   become_user: "{{ ihs_user }}"
   shell:
     cd "{{ jdk_repo }}"; unzip "{{ jdk_local_src }}"
-  when: (jdk_local_src is defined) and (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (jdk_local_src is defined) and (state == "installed") and ((installed_version is version_compare(ihs_version, '<')) or (installed_plg_version is version_compare(plg_version, '<')))
 
 - name: Remove temporary installation file {{ iim_tmp }}/{{ jdk_src|basename }}
   become: true
@@ -215,13 +236,21 @@
   become_user: "{{ ihs_user }}"
   command:
      '"{{ iim_path }}/eclipse/tools/imcl" "install" "{{ plg_imcl_package_name }}" "{{ jdk_imcl_package_name }}" "-repositories" "{{ plg_repo }},{{ jdk_repo }}" "-installationDirectory" "{{ plg_path }}" "-sharedResourcesDirectory" "{{ ibm_shared_path }}" "-accessRights" "nonAdmin" "-acceptLicense"'
-  when: (state == "installed") and (installed_version is version_compare(ihs_version, '<'))
+  when: (state == "installed") and (installed_plg_version is version_compare(plg_version, '<'))
 
 - name: Clean up repo {{ ihs_repo }}
   become: true
   become_user: "{{ ihs_user }}"
   file:
     path: "{{ ihs_repo }}"
+    state: absent
+  ignore_errors: yes
+
+- name: Clean up repo {{ plg_repo }}
+  become: true
+  become_user: "{{ ihs_user }}"
+  file:
+    path: "{{ plg_repo }}"
     state: absent
   ignore_errors: yes
 
