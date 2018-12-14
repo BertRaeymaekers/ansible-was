@@ -1,0 +1,9 @@
+# One line command
+{{ command }}
+
+# Save & Sync
+AdminConfig.save()
+if {{ nodename }} == None:
+    AdminNodeManagement.syncActiveNodes()
+else:
+    AdminNodeManagement.syncNode("{{ nodename}}")

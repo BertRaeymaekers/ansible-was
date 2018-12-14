@@ -1,17 +1,28 @@
 ---
+- set_fact:
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
+
+- set_fact:
+    jython_template: plain.jython
+  when: jython_command and ansible_check_mode
+
+- set_fact:
+    jython_template: saveandsync.jython
+  when: jython_command and not ansible_check_mode
+
 - name: Copying jython script based on template {{ jython_template }}
   become: true
   become_user: "{{ was_user }}"
   template:
     src: "{{ jython_template }}"
-    dest: "{{ wsadmin_tmp }}/{{ jython_template|basename }}.jy"
+    dest: "{{ wsadmin_tmp }}/{{ jython_template|basename }}.{{ timestamp }}.jy"
   when: jython_template is defined
 
 - name: Running jython script {{ wsadmin_tmp }}/{{ jython_template|basename }}.jy
   become: true
   become_user: "{{ was_user }}"
   shell:
-    {{ wsadmin_cmd }} -lang jython -f "{{ wsadmin_tmp }}/{{ jython_template|basename }}.jy" {{ wsadmin_params }}
+    {{ wsadmin_cmd }} -lang jython -f "{{ wsadmin_tmp }}/{{ jython_template|basename }}.{{ timestamp }}.jy" {{ wsadmin_params }}
   when: jython_template is defined
 
 - name: Copying jython script {{ jython_script }}
