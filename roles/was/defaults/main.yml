@@ -10,7 +10,7 @@ state: installed
 was_nd: false
 was_version: '9.0'
 was_mode: "{{ ibm_mode }}"
-was_path: "{{ibm_root}}/WebSphere" # AppServer
+was_path: "{{ibm_root}}/WebSphere/AppServer"
 was_profiles_path: "{{ was_path }}/profiles"
 
 was_type: "BASE"
