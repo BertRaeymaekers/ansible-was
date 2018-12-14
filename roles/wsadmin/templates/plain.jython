@@ -1,2 +1,2 @@
 # One line command
-{{ command }}
+{{ jython_command }}
