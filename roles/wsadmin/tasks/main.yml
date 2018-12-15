@@ -1,12 +1,15 @@
 ---
-- set_fact:
+- name: Set timestamp
+  set_fact:
     timestamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
 
-- set_fact:
+- name: Set jython template as plain.jython
+  set_fact:
     jython_template: plain.jython
   when: jython_command and ansible_check_mode
 
-- set_fact:
+- name: Set jython template as saveandsync.jython
+  set_fact:
     jython_template: saveandsync.jython
   when: jython_command and not ansible_check_mode
 
@@ -148,11 +151,9 @@
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApp.update(\"{{ app }}\", \"app\",  -[\"-contents\", \"{{ wsadmin_tmp }}{{ app_file|basename }}\"])'"
   when: (app_file is defined) and (app is defined) and (state == "installed")
 
-
 - name: Uninstall application {{ app }}
   become: true
   become_user: "{{ was_user }}"
   shell:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApp.uninstall(\"{{ app }}\")'"
   when: (app is defined) and (state == "absent")
-
