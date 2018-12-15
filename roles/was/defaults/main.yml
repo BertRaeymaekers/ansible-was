@@ -7,6 +7,7 @@ iim_tmp: "{{ ibm_root }}/tmp"
 was_user: "{{ ibm_user }}"
 was_group: "{{ was_user }}"
 state: installed
+profile_state: started
 was_nd: false
 was_version: '9.0'
 was_mode: "{{ ibm_mode }}"

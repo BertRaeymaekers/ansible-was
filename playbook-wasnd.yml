@@ -25,11 +25,11 @@
       user:
         name: "{{ibm_user}}"
 
-    - name: Create the {{ibm_root}} directory
+    - name: Create the {{ibm_root}}/WebSphere directory
       become: true
       become_user: root
       file:
-        path: "{{ibm_root}}"
+        path: "{{ibm_root}}/WebSphere/AppServer"
         state: directory
         owner: "{{ibm_user}}"
         group: "{{ibm_user}}"
@@ -37,6 +37,6 @@
 
   roles:
     - { role: iim, iim_src: "downloads/agent.installer.linux.gtk.x86_64_1.8.9002.20181015_1517.zip", iim_user: "{{ibm_user}}" }
-    - { role: was, was_src: "downloads/WAS_ND_V9.0_MP_ML.zip", jdk_src: "downloads/sdk.repo.8030.java8.linux.zip", was_user: "{{ibm_user}}", was_type: "ND", profile_name: "dmgr", profile_template: "management", state: "started"}
-    - { role: was, was_src: "downloads/WAS_ND_V9.0_MP_ML.zip", jdk_src: "downloads/sdk.repo.8030.java8.linux.zip", was_user: "{{ibm_user}}", was_type: "ND", profile_name: "node", profile_template: "managed", profile_options: "-federateLater false -dmgrHost localhost -dmgrPort 8879", state: "started"}
+    - { role: was, was_src: "downloads/WAS_ND_V9.0_MP_ML.zip", jdk_src: "downloads/sdk.repo.8030.java8.linux.zip", was_user: "{{ibm_user}}", was_type: "ND", profile_name: "dmgr", profile_template: "management"}
+    - { role: was, was_src: "downloads/WAS_ND_V9.0_MP_ML.zip", jdk_src: "downloads/sdk.repo.8030.java8.linux.zip", was_user: "{{ibm_user}}", was_type: "ND", profile_name: "node", profile_template: "managed", profile_options: "-federateLater false -dmgrHost localhost -dmgrPort 8879"}
 

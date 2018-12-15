@@ -14,7 +14,8 @@
 
 - name: Get the version of the installed WAS
   set_fact:
-    installed_version: '{{ installed.stdout|regex_search(was_imcl_package_regex, multiline=True)|regex_search("[0-9]+.[0-9]+.[0-9]+.[0-9]+$") }}'
+    installed_version: >
+      {{ installed.stdout|regex_search(was_imcl_package_regex, multiline=True)|regex_search("[0-9]+.[0-9]+.[0-9]+.[0-9]+$") }}
   ignore_errors: true
   when: installed is defined
 
@@ -26,8 +27,12 @@
 - name: Uninstalling WAS {{ installed_version }}
   become: true
   become_user: "{{ was_user }}"
-  command:
-    '"{{ iim_path }}/eclipse/tools/imcl" "uninstall" "{{ was_imcl_package_name }}" "{{ jdk_imcl_package_name }}" "-installationDirectory" "{{ was_path }}"'
+  command: >
+    "{{ iim_path }}/eclipse/tools/imcl" "uninstall"
+    "{{ was_imcl_package_name }}"
+    "{{ jdk_imcl_package_name }}"
+    "-installationDirectory"
+    "{{ was_path }}"
   when: (state == "absent") or (installed_version != "0" and (installed_version is version_compare(was_version, '<')))
 
 - name: Clear directory "{{ was_path }}"
@@ -150,8 +155,19 @@
 - name: Run IIM at {{ iim_path }} to install WAS with JDK at {{ was_path }}
   become: true
   become_user: "{{ was_user }}"
-  command:
-    '"{{ iim_path }}/eclipse/tools/imcl" "install" "{{ was_imcl_package_name }}" "{{ jdk_imcl_package_name }}" "-repositories" "{{ was_repo }},{{ jdk_repo }}" "-installationDirectory" "{{ was_path }}" "-sharedResourcesDirectory" "{{ ibm_shared_path }}" "-accessRights" "nonAdmin" "-acceptLicense"'
+  command: >
+    "{{ iim_path }}/eclipse/tools/imcl"
+    "install" "{{ was_imcl_package_name }}"
+    "{{ jdk_imcl_package_name }}"
+    "-repositories"
+    "{{ was_repo }},{{ jdk_repo }}"
+    "-installationDirectory"
+    "{{ was_path }}"
+    "-sharedResourcesDirectory"
+    "{{ ibm_shared_path }}"
+    "-accessRights"
+    "nonAdmin"
+    "-acceptLicense"
   when: (state == "installed") and (installed_version is version_compare(was_version, '<'))
 
 - name: Clean up repo {{ was_repo }}
@@ -192,7 +208,13 @@
 - name: Create profile {{ profile_name }}
   become: true
   become_user: "{{ was_user }}"
-  command: "{{ was_path }}/bin/manageprofiles.sh  -create -profileName '{{ profile_name }}' -profilePath '{{ _profile_path }}' -templatePath '{{ was_path }}/profileTemplates/{{ profile_template }}' {{ profile_options|default('') }}"
+  command: >
+    {{ was_path }}/bin/manageprofiles.sh
+    -create
+    -profileName '{{ profile_name }}'
+    -profilePath '{{ _profile_path }}'
+    -templatePath '{{ was_path }}/profileTemplates/{{ profile_template }}'
+    {{ profile_options|default('') }}
   when: profile_name is defined and profile_template is defined and profile_status.rc != 0
 
 - name: Status of deployment manager
@@ -202,10 +224,10 @@
   register: dmgr
   changed_when: false
   failed_when: false
-  when: (state == "started" or state == "restarted") and _profile_path is defined and profile_template == "management"
+  when: (profile_state == "started" or profile_state == "restarted") and _profile_path is defined and profile_template == "management"
 
 - name: Starting deployment manager
   become: true
   become_user: "{{ was_user }}"
   command: "{{ _profile_path }}/bin/startManager.sh"
-  when: (state == "started" or state == "restarted") and _profile_path is defined and profile_template == "management" and dmgr.stdout
+  when: (profile_state == "started" or profile_state == "restarted") and _profile_path is defined and profile_template == "management" and dmgr.stdout == ""
