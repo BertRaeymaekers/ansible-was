@@ -205,4 +205,4 @@
   become: true
   become_user: "{{ was_user }}"
   command: "{{ _profile_path }}/bin/startManager.sh"
-  when: (state == "started" or state == "restarted") and _profile_path is defined and profile_template == "management" and dmgr.stdout == ""
+  when: (state == "started" or state == "restarted") and _profile_path is defined and profile_template == "management" and dmgr.stdout
