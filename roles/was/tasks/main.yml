@@ -18,7 +18,8 @@
   ignore_errors: true
   when: installed is defined
 
-- debug:
+- name: Print if already at the version (or higher)
+  debug:
     msg: Already at version {{ was_version }} or higher with version {{ installed_version }}.
   when: installed_version is version_compare(was_version, '>=')
 
@@ -169,11 +170,13 @@
     state: absent
   ignore_errors: yes
 
-- set_fact:
+- name: Set _profile_path based on profile_name
+  set_fact:
     _profile_path: "{{ was_profiles_path }}/{{ profile_name }}"
   when: profile_name is defined and profile_path is not defined
 
-- set_fact:
+- name: Set _profile_path based on was_profile_path
+  set_fact:
     _profile_path: "{{ was_profile_path }}"
   when: profile_path is defined
 
