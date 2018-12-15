@@ -25,7 +25,7 @@
 - name: Running jython script {{ wsadmin_tmp }}/{{ jython_template|basename }}.{{ timestamp }}.jy
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -f '{{ wsadmin_tmp }}/{{ jython_template|basename }}.{{ timestamp }}.jy' {{ wsadmin_params }}"
   when: jython_template is defined
 
@@ -38,91 +38,91 @@
   when: jython_script is defined
 
 - name: Running jython script {{ wsadmin_tmp }}/{{ jython_script|basename }}
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -f '{{ wsadmin_tmp }}/{{ jython_script|basename }}' {{ wsadmin_params }}"
   when: jython_script is defined
 
 - name: Make sure all clusters are started
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminClusterManagement.startAllClusters()'"
   when: (cluster is defined) and (state == "started") and (cluster == "*")
 
 - name: Make sure all cluster are stopped
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminClusterManagement.stopAllClusters()'"
   when: (cluster is defined) and (state == "stopped") and (cluster == "*")
 
 - name: Make sure cluster {{ cluster }} is started
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminClusterManagement.startSingleCluster(\"{{ cluster }}\")'"
   when: (cluster is defined) and (state == "started") and (cluster != "*") and (app is not defined)
 
 - name: Make sure cluster {{ cluster }} is stopped
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminClusterManagement.stopSingleCluster(\"{{ cluster }}\")'"
   when: (cluster is defined) and (state == "stopped") and (cluster != "*") and (app is not defined)
 
 - name: Make sure application {{ app }} on cluster {{ cluster }} is started
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApplication.startApplicationOnCluster(\"{{ app }}\", \"{{ cluster }}\")'"
   when: (cluster is defined) and (state == "started") and (cluster != "*") and (app is defined)
 
 - name: Make sure applicaion {{ app }} on cluster {{ cluster }} is stopped
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApplication.stopApplicationOnCluster(\"{{ app }}\", \"{{ cluster }}\")'"
   when: (cluster is defined) and (state == "stopped") and (cluster != "*") and (app is defined)
 
 - name: Make sure application {{ app }} on all targets on node {{ node }} is started
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApplication.startApplicationOnAllDeployedTargets(\"{{ app }}\", \"{{ node }}\")'"
   when: (node is defined) and (state == "started") and (app is defined) and (as is not defined)
 
 - name: Make sure application {{ app }} on all targets on node {{ node }} is stopped
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApplication.stopApplicationOnAllDeployedTargets(\"{{ app }}\", \"{{ node }}\")'"
   when: (node is defined) and (state == "stopped") and (app is defined) and (as is not defined)
 
 - name: Make sure application {{ app }} on application server {{ as }} on node {{ node }} is started
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApplication.startApplicationOnSingleServer(\"{{ app }}\", \"{{ node }}\", \"{{ as }}\")'"
   when: (node is defined) and (state == "started") and (app is defined) and (as is defined)
 
 - name: Make sure application {{ app }} on appication server {{ as }} on node {{ node }} is stopped
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApplication.stopApplicationOnSingleServer(\"{{ app }}\", \"{{ node }}\", \"{{ as }}\")'"
   when: (node is defined) and (state == "stopped") and (app is defined) and (as is not defined)
 
 - name: Make sure application server {{ as }} is started
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminControl.startServer(\"{{ as }}\")'"
   when: (as is defined) and (state == "started") and (node is not defined) and (app is not defined)
 
 - name: Make sure application server {{ as }} is stopped
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminControl.startServer(\"{{ as }}\")'"
   when: (as is defined) and (state == "stopped") and (node is not defined) and (app is not defined)
 
@@ -139,7 +139,7 @@
   # TODO: on cluster, on application server, ... & more options
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApp.install(\"{{ wsadmin_tmp }}{{ app_file|basename }}\")'"
   when: (app_file is defined) and (app is defined) and (state == "installed")
 
@@ -147,13 +147,13 @@
   # TODO: on cluster, on application server, ... & more options
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApp.update(\"{{ app }}\", \"app\",  -[\"-contents\", \"{{ wsadmin_tmp }}{{ app_file|basename }}\"])'"
   when: (app_file is defined) and (app is defined) and (state == "installed")
 
 - name: Uninstall application {{ app }}
   become: true
   become_user: "{{ was_user }}"
-  shell:
+  command:
     "{{ wsadmin_cmd }} -lang jython -c 'AdminApp.uninstall(\"{{ app }}\")'"
   when: (app is defined) and (state == "absent")
