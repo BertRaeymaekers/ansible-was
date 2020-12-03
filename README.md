@@ -1,3 +1,6 @@
+## I'm not maintaining this anymore as I'm not doing WAS anymore
+Feel free to fork or look at one of the forks other people created.
+
 # ansible-was
 
 Roles for installing and managing IBM Websphere Application Server (WAS) on
