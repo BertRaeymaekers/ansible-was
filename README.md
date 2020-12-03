@@ -1,4 +1,4 @@
-## I'm not maintaining this anymore as I'm not doing WAS anymore
+# I'M NOT MAINTAINING THIS ANYMORE AS I'M NO LONGER DOING WAS.
 Feel free to fork or look at one of the forks other people created.
 
 # ansible-was
